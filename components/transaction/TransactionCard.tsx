@@ -5,6 +5,8 @@ import { Pencil, Trash2 } from "lucide-react";
 import { formatBRL, formatDate } from "@/src/lib/utils";
 import type { TransactionWithCategory } from "@/src/types";
 
+const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === "true";
+
 interface Props {
   transaction: TransactionWithCategory;
   onEdit: () => void;
@@ -15,23 +17,25 @@ interface Props {
 export function TransactionCard({ transaction: t, onEdit, onDelete, onImageClick }: Props) {
   return (
     <div className="flex w-full items-center gap-3 px-4 py-3 hover:bg-muted/30 transition-colors">
-      {/* Ações à esquerda */}
-      <div className="flex flex-col gap-1 md:flex-row md:gap-2">
-        <button
-          onClick={onEdit}
-          aria-label="Editar"
-          className="rounded-full p-2 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-        >
-          <Pencil className="h-4 w-4" />
-        </button>
-        <button
-          onClick={onDelete}
-          aria-label="Excluir"
-          className="rounded-full p-2 text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
-        >
-          <Trash2 className="h-4 w-4" />
-        </button>
-      </div>
+      {/* Ações à esquerda (escondidas em modo demo) */}
+      {!isDemoMode && (
+        <div className="flex flex-col gap-1 md:flex-row md:gap-2">
+          <button
+            onClick={onEdit}
+            aria-label="Editar"
+            className="rounded-full p-2 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+          >
+            <Pencil className="h-4 w-4" />
+          </button>
+          <button
+            onClick={onDelete}
+            aria-label="Excluir"
+            className="rounded-full p-2 text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
+          >
+            <Trash2 className="h-4 w-4" />
+          </button>
+        </div>
+      )}
 
       {/* Imagem (abre lightbox) */}
       <button

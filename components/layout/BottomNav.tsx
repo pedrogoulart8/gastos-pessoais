@@ -5,10 +5,14 @@ import { usePathname } from "next/navigation";
 import { LayoutDashboard, History, TrendingUp, PlusCircle } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 
+const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === "true";
+
 const navItems = [
   { href: "/", label: "Resumo", icon: LayoutDashboard },
   { href: "/history", label: "Histórico", icon: History },
-  { href: "/add", label: "Adicionar", icon: PlusCircle, primary: true },
+  ...(isDemoMode
+    ? []
+    : [{ href: "/add", label: "Adicionar", icon: PlusCircle, primary: true }]),
   { href: "/insights", label: "Insights", icon: TrendingUp },
 ];
 
