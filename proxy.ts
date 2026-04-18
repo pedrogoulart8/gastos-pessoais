@@ -2,16 +2,18 @@ import { NextRequest, NextResponse } from "next/server";
 
 export function proxy(request: NextRequest) {
   const path = request.nextUrl.pathname;
-  const isDemoMode = process.env.DEMO_MODE === "true";
   const isApi = path.startsWith("/api/");
   const isAuthApi = path.startsWith("/api/auth/");
   const isLoginPage = path === "/login";
 
-  // Endpoints de autenticação e página de login são sempre acessíveis
+  // Login e seus endpoints sempre acessíveis
   if (isAuthApi || isLoginPage) return NextResponse.next();
 
-  if (isDemoMode) {
-    // Modo demo: GETs públicos, escritas bloqueadas
+  // Modo demo = ausência de ADMIN_PASSWORD/APP_TOKEN
+  // (na instância pública essas vars não são setadas)
+  const hasAuth = !!process.env.ADMIN_PASSWORD && !!process.env.APP_TOKEN;
+
+  if (!hasAuth) {
     if (isApi && request.method !== "GET") {
       return NextResponse.json(
         { error: "Modo demonstração: dados somente leitura" },
@@ -21,7 +23,7 @@ export function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Modo privado: exige cookie de sessão (definido pelo login) ou header (backward compat)
+  // Modo privado — exige cookie (definido pelo login) ou header (backward compat)
   const cookieToken = request.cookies.get("auth")?.value;
   const headerToken = request.headers.get("x-api-token");
   const authenticated =
