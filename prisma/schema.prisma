@@ -1,0 +1,59 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Receipt {
+  id            String        @id @default(cuid())
+  imageUrl      String
+  imageHash     String        @unique
+  rawExtraction Json?
+  status        ReceiptStatus @default(PENDING)
+  createdAt     DateTime      @default(now())
+  transaction   Transaction?
+}
+
+enum ReceiptStatus {
+  PENDING
+  CONFIRMED
+  REJECTED
+}
+
+model Transaction {
+  id            String        @id @default(cuid())
+  receiptId     String?       @unique
+  receipt       Receipt?      @relation(fields: [receiptId], references: [id])
+  date          DateTime
+  amount        Int           // centavos — evita float imprecision
+  merchant      String
+  description   String?
+  paymentMethod PaymentMethod @default(PIX)
+  categoryId    String
+  category      Category      @relation(fields: [categoryId], references: [id])
+  notes         String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([date])
+  @@index([categoryId])
+}
+
+enum PaymentMethod {
+  PIX
+  CARD
+  BOLETO
+  CASH
+  OTHER
+}
+
+model Category {
+  id           String        @id @default(cuid())
+  name         String        @unique
+  color        String        // hex
+  icon         String?       // nome do ícone lucide-react
+  transactions Transaction[]
+}
