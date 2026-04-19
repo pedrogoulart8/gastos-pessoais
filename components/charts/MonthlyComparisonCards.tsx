@@ -42,13 +42,17 @@ export function MonthlyComparisonCards({ summary, monthLabel }: Props) {
         </p>
       </div>
 
-      {/* Card de ticket médio */}
+      {/* Card de valor gasto no dia */}
       <div className="rounded-2xl bg-card p-4 md:p-6 shadow-sm border border-border">
-        <p className="text-xs font-medium text-muted-foreground">Ticket médio</p>
+        <p className="text-xs font-medium text-muted-foreground">Valor gasto no dia</p>
         <p className="mt-1 text-2xl md:text-3xl font-bold">
-          {count > 0 ? formatBRL(Math.round(total / count)) : "—"}
+          {formatBRL(summary.todayTotal)}
         </p>
-        <p className="mt-0.5 text-xs text-muted-foreground">por transação</p>
+        <p className="mt-0.5 text-xs text-muted-foreground">
+          {summary.todayCount === 0
+            ? "nenhuma transação hoje"
+            : `${summary.todayCount} ${summary.todayCount === 1 ? "transação" : "transações"} hoje`}
+        </p>
       </div>
     </div>
   );

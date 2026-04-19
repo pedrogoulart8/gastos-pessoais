@@ -21,6 +21,8 @@ export type MonthSummary = {
   previousTotal: number;
   previousCount: number;
   changePercent: number;
+  todayTotal: number;
+  todayCount: number;
 };
 
 export type CumulativePoint = {

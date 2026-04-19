@@ -19,7 +19,12 @@ function endOfMonth(year: number, month: number): Date {
 
 // 5.1 — Comparação mensal
 export async function getMonthSummary(year: number, month: number): Promise<MonthSummary> {
-  const [current, previous] = await Promise.all([
+  const now = new Date();
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const startOfTomorrow = new Date(startOfToday);
+  startOfTomorrow.setDate(startOfTomorrow.getDate() + 1);
+
+  const [current, previous, today] = await Promise.all([
     prisma.transaction.aggregate({
       _sum: { amount: true },
       _count: true,
@@ -37,6 +42,11 @@ export async function getMonthSummary(year: number, month: number): Promise<Mont
         },
       },
     }),
+    prisma.transaction.aggregate({
+      _sum: { amount: true },
+      _count: true,
+      where: { date: { gte: startOfToday, lt: startOfTomorrow } },
+    }),
   ]);
 
   const total = current._sum.amount ?? 0;
@@ -50,6 +60,8 @@ export async function getMonthSummary(year: number, month: number): Promise<Mont
     previousTotal,
     previousCount: previous._count,
     changePercent,
+    todayTotal: today._sum.amount ?? 0,
+    todayCount: today._count,
   };
 }
 
