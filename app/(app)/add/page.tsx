@@ -10,6 +10,7 @@ import type { Category } from "@/app/generated/prisma/client";
 import type { ExtractionResult } from "@/src/types";
 import { getApiHeaders } from "@/src/lib/apiClient";
 import { useDemoMode } from "@/src/lib/demoMode";
+import { compressImage } from "@/src/lib/imageCompression";
 
 type Step = "capture" | "uploading" | "extracting" | "review" | "error";
 
@@ -25,12 +26,13 @@ export default function AddPage() {
   const [extraction, setExtraction] = useState<ExtractionResult | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
 
-  async function handleFile(file: File) {
-    setPreview(URL.createObjectURL(file));
+  async function handleFile(input: File) {
+    setPreview(URL.createObjectURL(input));
     setStep("uploading");
 
     try {
-      // 1. Upload
+      const file = await compressImage(input);
+
       const form = new FormData();
       form.append("file", file);
       const uploadRes = await fetch("/api/upload", {
