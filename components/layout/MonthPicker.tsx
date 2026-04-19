@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ChevronLeft, ChevronRight, Calendar } from "lucide-react";
 
 interface Props {
@@ -11,6 +11,7 @@ interface Props {
 export function MonthPicker({ year, month }: Props) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const pathname = usePathname();
 
   const now = new Date();
   const isCurrent = now.getFullYear() === year && now.getMonth() + 1 === month;
@@ -27,14 +28,14 @@ export function MonthPicker({ year, month }: Props) {
     const newMonth = date.getMonth() + 1;
     const params = new URLSearchParams(searchParams);
     params.set("month", `${newYear}-${String(newMonth).padStart(2, "0")}`);
-    router.push(`?${params.toString()}`);
+    router.push(`${pathname}?${params.toString()}`);
   }
 
   function goToToday() {
     const params = new URLSearchParams(searchParams);
     params.delete("month");
     const qs = params.toString();
-    router.push(qs ? `?${qs}` : "/");
+    router.push(qs ? `${pathname}?${qs}` : pathname);
   }
 
   return (

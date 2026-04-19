@@ -250,15 +250,26 @@ export async function getTopPaymentMethods(
     .slice(0, 3);
 }
 
-// 5.6 — Média de gasto por dia da semana (últimos 90 dias)
-export async function getWeekdayAverages(): Promise<WeekdayAverage[]> {
+// 5.6 — Média de gasto por dia da semana (janela de 90 dias)
+export async function getWeekdayAverages(
+  year?: number,
+  month?: number
+): Promise<WeekdayAverage[]> {
   const now = new Date();
-  const since = new Date(now);
+  const isCurrent =
+    year === undefined ||
+    month === undefined ||
+    (year === now.getFullYear() && month === now.getMonth() + 1);
+
+  const anchor = isCurrent ? now : new Date(endOfMonth(year!, month!).getTime() - 1);
+  const since = new Date(anchor);
   since.setDate(since.getDate() - 89);
   since.setHours(0, 0, 0, 0);
+  const until = new Date(anchor);
+  until.setHours(23, 59, 59, 999);
 
   const transactions = await prisma.transaction.findMany({
-    where: { date: { gte: since } },
+    where: { date: { gte: since, lte: until } },
     select: { date: true, amount: true },
   });
 
