@@ -4,8 +4,7 @@ import Image from "next/image";
 import { Pencil, Trash2 } from "lucide-react";
 import { formatBRL, formatDate } from "@/src/lib/utils";
 import type { TransactionWithCategory } from "@/src/types";
-
-const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === "true";
+import { useDemoMode } from "@/src/lib/demoMode";
 
 interface Props {
   transaction: TransactionWithCategory;
@@ -15,6 +14,7 @@ interface Props {
 }
 
 export function TransactionCard({ transaction: t, onEdit, onDelete, onImageClick }: Props) {
+  const isDemoMode = useDemoMode();
   return (
     <div className="flex w-full items-center gap-3 px-4 py-3 hover:bg-muted/30 transition-colors">
       {/* Ações à esquerda (escondidas em modo demo) */}

@@ -3,17 +3,19 @@
 import Image from "next/image";
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Camera, Upload, Loader2, AlertCircle } from "lucide-react";
+import { Camera, Upload, Loader2, AlertCircle, Lock } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { ReviewForm } from "@/components/transaction/ReviewForm";
 import type { Category } from "@/app/generated/prisma/client";
 import type { ExtractionResult } from "@/src/types";
 import { getApiHeaders } from "@/src/lib/apiClient";
+import { useDemoMode } from "@/src/lib/demoMode";
 
 type Step = "capture" | "uploading" | "extracting" | "review" | "error";
 
 export default function AddPage() {
   const router = useRouter();
+  const isDemoMode = useDemoMode();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [step, setStep] = useState<Step>("capture");
   const [preview, setPreview] = useState<string | null>(null);
@@ -72,6 +74,26 @@ export default function AddPage() {
   function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (file) handleFile(file);
+  }
+
+  if (isDemoMode) {
+    return (
+      <div>
+        <PageHeader title="Adicionar gasto" />
+        <div className="px-4">
+          <div className="flex flex-col items-center gap-3 rounded-2xl border border-amber-500/30 bg-amber-500/10 px-6 py-10 text-center">
+            <Lock className="h-8 w-8 text-amber-600 dark:text-amber-400" />
+            <p className="text-sm font-medium text-amber-700 dark:text-amber-400">
+              Indisponível no modo demonstração
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Esta instância pública é somente leitura. Para testar a extração por IA,
+              entre em contato.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   if (step === "review" && extraction) {

@@ -4,20 +4,20 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LayoutDashboard, History, TrendingUp, PlusCircle } from "lucide-react";
 import { cn } from "@/src/lib/utils";
-
-const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === "true";
-
-const navItems = [
-  { href: "/", label: "Resumo", icon: LayoutDashboard },
-  { href: "/history", label: "Histórico", icon: History },
-  ...(isDemoMode
-    ? []
-    : [{ href: "/add", label: "Adicionar", icon: PlusCircle, primary: true }]),
-  { href: "/insights", label: "Insights", icon: TrendingUp },
-];
+import { useDemoMode } from "@/src/lib/demoMode";
 
 export function BottomNav() {
   const pathname = usePathname();
+  const isDemoMode = useDemoMode();
+
+  const navItems = [
+    { href: "/", label: "Resumo", icon: LayoutDashboard },
+    { href: "/history", label: "Histórico", icon: History },
+    ...(isDemoMode
+      ? []
+      : [{ href: "/add", label: "Adicionar", icon: PlusCircle, primary: true }]),
+    { href: "/insights", label: "Insights", icon: TrendingUp },
+  ];
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card pb-safe">
