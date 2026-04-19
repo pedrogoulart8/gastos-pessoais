@@ -25,6 +25,7 @@ export function ReviewForm({
   onDiscard,
 }: Props) {
   const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState<string>("");
   const [form, setForm] = useState({
     date: extraction.date,
     amount: (extraction.amount_cents / 100).toFixed(2),
@@ -40,23 +41,32 @@ export function ReviewForm({
   }
 
   function handleConfirm() {
+    setError("");
     startTransition(async () => {
-      const amountCents = Math.round(parseFloat(form.amount) * 100);
-      await fetch("/api/transactions", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", ...getApiHeaders() },
-        body: JSON.stringify({
-          receiptId,
-          date: form.date,
-          amount: amountCents,
-          merchant: form.merchant,
-          description: form.description,
-          paymentMethod: form.paymentMethod,
-          categoryId: form.categoryId,
-          notes: form.notes || undefined,
-        }),
-      });
-      onConfirm();
+      try {
+        const amountCents = Math.round(parseFloat(form.amount) * 100);
+        const res = await fetch("/api/transactions", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", ...getApiHeaders() },
+          body: JSON.stringify({
+            receiptId,
+            date: form.date,
+            amount: amountCents,
+            merchant: form.merchant,
+            description: form.description,
+            paymentMethod: form.paymentMethod,
+            categoryId: form.categoryId,
+            notes: form.notes || undefined,
+          }),
+        });
+        if (!res.ok) {
+          const body = await res.json().catch(() => ({}));
+          throw new Error(body.error ?? `Erro ${res.status} ao salvar`);
+        }
+        onConfirm();
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Erro desconhecido");
+      }
     });
   }
 
@@ -154,6 +164,12 @@ export function ReviewForm({
           />
         </Field>
       </div>
+
+      {error && (
+        <div className="rounded-xl border border-destructive/30 bg-destructive/5 px-3 py-2.5 text-sm text-destructive">
+          {error}
+        </div>
+      )}
 
       {/* Ações */}
       <div className="flex gap-3 pt-2">
