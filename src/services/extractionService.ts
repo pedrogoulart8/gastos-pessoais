@@ -50,10 +50,22 @@ export async function extractReceiptData(
             {
               type: "text",
               text: `Extraia os dados deste comprovante de pagamento brasileiro.
-Se for um Pix, identifique o beneficiário, valor e data.
-Se não conseguir ler algum campo com certeza, use confidence "low".
-A data deve estar no formato YYYY-MM-DD.
-O valor deve estar em centavos (R$ 45,90 → 4590).`,
+
+REGRAS DE DATA (ordem de prioridade):
+1. Use sempre a **data em que o pagamento foi efetivamente realizado**
+   (ex.: "Data do pagamento", "Pago em", "Data da transação", "Efetivado em",
+   "Data da operação", "Data Pix").
+2. NUNCA use "Data de vencimento", "Vencimento", "Válido até" ou
+   "Data de emissão" se houver uma data de pagamento disponível.
+3. Se for um Pix, use a data em que o Pix foi enviado/recebido.
+4. Se houver APENAS data de emissão (nota fiscal sem pagamento anexo),
+   use a data de emissão.
+5. Formato obrigatório: YYYY-MM-DD.
+
+Outros campos:
+- O valor deve estar em centavos (R$ 45,90 → 4590).
+- Se for um Pix, identifique o beneficiário no campo merchant.
+- Se não conseguir ler algum campo com certeza, use confidence "low".`,
             },
           ],
         },

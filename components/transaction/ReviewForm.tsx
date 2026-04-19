@@ -71,6 +71,10 @@ export function ReviewForm({
   }
 
   const isLowConfidence = extraction.confidence === "low";
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const formDate = new Date(form.date + "T00:00:00");
+  const isFutureDate = formDate.getTime() > today.getTime();
 
   return (
     <div className="flex flex-col gap-4 px-4 pb-6">
@@ -85,6 +89,17 @@ export function ReviewForm({
           <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0" />
           <span>
             Alguns dados podem estar incorretos. Revise os campos antes de confirmar.
+          </span>
+        </div>
+      )}
+
+      {/* Aviso de data futura (provavelmente vencimento em vez de pagamento) */}
+      {isFutureDate && (
+        <div className="flex items-start gap-2 rounded-xl bg-orange-50 border border-orange-200 px-3 py-2.5 text-sm text-orange-800">
+          <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0" />
+          <span>
+            A data está no futuro — pode ser a data de vencimento em vez da data
+            do pagamento. Confira antes de confirmar.
           </span>
         </div>
       )}
