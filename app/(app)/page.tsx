@@ -1,4 +1,5 @@
 import { PageHeader } from "@/components/layout/PageHeader";
+import { MonthPicker } from "@/components/layout/MonthPicker";
 import { MonthlyComparisonCards } from "@/components/charts/MonthlyComparisonCards";
 import { CategoryBarChart } from "@/components/charts/CategoryBarChart";
 import { DailySpendingChart } from "@/components/charts/DailySpendingChart";
@@ -10,17 +11,40 @@ import {
 
 export const dynamic = "force-dynamic";
 
-export default async function ResumePage() {
+function parseMonthParam(value: string | string[] | undefined): { year: number; month: number } {
   const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth() + 1;
+  if (typeof value !== "string") {
+    return { year: now.getFullYear(), month: now.getMonth() + 1 };
+  }
+  const match = value.match(/^(\d{4})-(\d{2})$/);
+  if (!match) {
+    return { year: now.getFullYear(), month: now.getMonth() + 1 };
+  }
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  if (month < 1 || month > 12) {
+    return { year: now.getFullYear(), month: now.getMonth() + 1 };
+  }
+  return { year, month };
+}
 
-  const monthLabel = now.toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
+export default async function ResumePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ month?: string }>;
+}) {
+  const params = await searchParams;
+  const { year, month } = parseMonthParam(params.month);
+
+  const monthLabel = new Date(year, month - 1, 1).toLocaleDateString("pt-BR", {
+    month: "long",
+    year: "numeric",
+  });
 
   const [summary, categories, daily] = await Promise.all([
     getMonthSummary(year, month),
     getCategoryTotals(year, month),
-    getDailyTotals(),
+    getDailyTotals(year, month),
   ]);
 
   return (
@@ -30,7 +54,8 @@ export default async function ResumePage() {
         subtitle={`Resumo de ${monthLabel}`}
       />
 
-      {/* Comparação mensal */}
+      <MonthPicker year={year} month={month} />
+
       <section>
         <MonthlyComparisonCards
           summary={summary}
@@ -38,7 +63,6 @@ export default async function ResumePage() {
         />
       </section>
 
-      {/* Charts em grid no desktop, stacked no mobile */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 px-4 md:px-6">
         <section className="rounded-2xl border border-border bg-card p-4 md:p-6">
           <h2 className="mb-4 text-sm font-semibold text-muted-foreground uppercase tracking-wide">
@@ -49,7 +73,7 @@ export default async function ResumePage() {
 
         <section className="rounded-2xl border border-border bg-card p-4 md:p-6">
           <h2 className="mb-4 text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-            Últimos 30 dias
+            {summary.isCurrentMonth ? "Dias do mês" : "Dias do mês selecionado"}
           </h2>
           <div className="h-64 md:h-80">
             <DailySpendingChart data={daily} />

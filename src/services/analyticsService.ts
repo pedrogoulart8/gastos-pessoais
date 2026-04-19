@@ -20,6 +20,7 @@ function endOfMonth(year: number, month: number): Date {
 // 5.1 — Comparação mensal
 export async function getMonthSummary(year: number, month: number): Promise<MonthSummary> {
   const now = new Date();
+  const isCurrentMonth = now.getFullYear() === year && now.getMonth() + 1 === month;
   const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const startOfTomorrow = new Date(startOfToday);
   startOfTomorrow.setDate(startOfTomorrow.getDate() + 1);
@@ -42,17 +43,23 @@ export async function getMonthSummary(year: number, month: number): Promise<Mont
         },
       },
     }),
-    prisma.transaction.aggregate({
-      _sum: { amount: true },
-      _count: true,
-      where: { date: { gte: startOfToday, lt: startOfTomorrow } },
-    }),
+    isCurrentMonth
+      ? prisma.transaction.aggregate({
+          _sum: { amount: true },
+          _count: true,
+          where: { date: { gte: startOfToday, lt: startOfTomorrow } },
+        })
+      : Promise.resolve({ _sum: { amount: 0 }, _count: 0 }),
   ]);
 
   const total = current._sum.amount ?? 0;
   const previousTotal = previous._sum.amount ?? 0;
   const changePercent =
     previousTotal === 0 ? 0 : ((total - previousTotal) / previousTotal) * 100;
+
+  const daysInMonth = new Date(year, month, 0).getDate();
+  const daysElapsed = isCurrentMonth ? now.getDate() : daysInMonth;
+  const dailyAverage = daysElapsed === 0 ? 0 : Math.round(total / daysElapsed);
 
   return {
     total,
@@ -62,6 +69,9 @@ export async function getMonthSummary(year: number, month: number): Promise<Mont
     changePercent,
     todayTotal: today._sum.amount ?? 0,
     todayCount: today._count,
+    isCurrentMonth,
+    dailyAverage,
+    daysInMonth,
   };
 }
 
@@ -95,15 +105,30 @@ export async function getCategoryTotals(
   return Array.from(map.values()).sort((a, b) => b.total - a.total);
 }
 
-// 5.3 — Gastos diários dos últimos 30 dias
-export async function getDailyTotals(): Promise<DailyTotal[]> {
-  const now = new Date();
-  const since = new Date(now);
-  since.setDate(since.getDate() - 29);
-  since.setHours(0, 0, 0, 0);
+// 5.3 — Gastos diários do mês selecionado (ou últimos 30 dias se não informado)
+export async function getDailyTotals(
+  year?: number,
+  month?: number
+): Promise<DailyTotal[]> {
+  let since: Date;
+  let dayCount: number;
+
+  if (year !== undefined && month !== undefined) {
+    since = startOfMonth(year, month);
+    dayCount = new Date(year, month, 0).getDate();
+  } else {
+    const now = new Date();
+    since = new Date(now);
+    since.setDate(since.getDate() - 29);
+    since.setHours(0, 0, 0, 0);
+    dayCount = 30;
+  }
+
+  const until = new Date(since);
+  until.setDate(until.getDate() + dayCount);
 
   const transactions = await prisma.transaction.findMany({
-    where: { date: { gte: since } },
+    where: { date: { gte: since, lt: until } },
     select: { date: true, amount: true },
     orderBy: { date: "asc" },
   });
@@ -120,9 +145,8 @@ export async function getDailyTotals(): Promise<DailyTotal[]> {
     }
   }
 
-  // Preenche dias sem transação com zero
   const result: DailyTotal[] = [];
-  for (let i = 0; i < 30; i++) {
+  for (let i = 0; i < dayCount; i++) {
     const d = new Date(since);
     d.setDate(since.getDate() + i);
     const key = d.toISOString().slice(0, 10);
