@@ -58,12 +58,12 @@ export function MonthlyComparisonCards({ summary, monthLabel }: Props) {
           </>
         ) : (
           <>
-            <p className="text-xs font-medium text-muted-foreground">Média diária</p>
+            <p className="text-xs font-medium text-muted-foreground">Valor gasto no dia</p>
             <p className="mt-1 text-2xl md:text-3xl font-bold">
               {formatBRL(summary.dailyAverage)}
             </p>
             <p className="mt-0.5 text-xs text-muted-foreground">
-              ao longo do mês
+              média do mês
             </p>
           </>
         )}
