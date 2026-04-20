@@ -42,31 +42,17 @@ export function MonthlyComparisonCards({ summary, monthLabel }: Props) {
         </p>
       </div>
 
-      {/* Card de valor gasto no dia (mês atual) ou média diária (outros meses) */}
+      {/* Card de valor gasto no dia */}
       <div className="rounded-2xl bg-card p-4 md:p-6 shadow-sm border border-border">
-        {summary.isCurrentMonth ? (
-          <>
-            <p className="text-xs font-medium text-muted-foreground">Valor gasto no dia</p>
-            <p className="mt-1 text-2xl md:text-3xl font-bold">
-              {formatBRL(summary.todayTotal)}
-            </p>
-            <p className="mt-0.5 text-xs text-muted-foreground">
-              {summary.todayCount === 0
-                ? "nenhuma transação hoje"
-                : `${summary.todayCount} ${summary.todayCount === 1 ? "transação" : "transações"} hoje`}
-            </p>
-          </>
-        ) : (
-          <>
-            <p className="text-xs font-medium text-muted-foreground">Valor gasto no dia</p>
-            <p className="mt-1 text-2xl md:text-3xl font-bold">
-              {formatBRL(summary.dailyAverage)}
-            </p>
-            <p className="mt-0.5 text-xs text-muted-foreground">
-              média do mês
-            </p>
-          </>
-        )}
+        <p className="text-xs font-medium text-muted-foreground">Valor gasto no dia</p>
+        <p className="mt-1 text-2xl md:text-3xl font-bold">
+          {formatBRL(summary.todayTotal)}
+        </p>
+        <p className="mt-0.5 text-xs text-muted-foreground">
+          {summary.todayCount === 0
+            ? "nenhuma transação hoje"
+            : `${summary.todayCount} ${summary.todayCount === 1 ? "transação" : "transações"} hoje`}
+        </p>
       </div>
     </div>
   );
