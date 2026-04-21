@@ -12,7 +12,7 @@
 
 ---
 
-## Features do MVP
+## Como funciona
 
 ### Captura e extração
 - Botão "Tirar foto" aciona câmera nativa do celular (`capture="environment"`)
