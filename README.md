@@ -31,13 +31,3 @@
 - Filtros por mês, categoria e texto livre
 - Tap abre detalhe com imagem em tela cheia + editar/deletar
 
-### Dashboards — 6 gráficos, 6 perguntas
-
-| # | Gráfico | Pergunta respondida |
-|---|---------|---------------------|
-| 1 | **Stat cards mensais** | Estou gastando mais ou menos que o mês passado? |
-| 2 | **Barras horizontais por categoria** | Para onde está indo meu dinheiro este mês? |
-| 3 | **Barras diárias — últimos 30 dias** | Houve algum pico incomum esta semana? |
-| 4 | **Curva cumulativa: mês atual vs anterior** | Estou no mesmo ritmo que o mês passado? |
-| 5 | **Top 10 maiores gastos do mês** | Quais foram meus maiores gastos? Teve algum excepcional? |
-| 6 | **Média por dia da semana** | Em que dia da semana eu mais gasto? |
