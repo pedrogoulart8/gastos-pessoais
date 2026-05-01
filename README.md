@@ -1,6 +1,6 @@
-# Gastos Visíveis
+# Aplicativo para controle de gastos pessoais
 
-> Aplicativo de controle de gastos pessoais com leitura de notas fiscais e boletos por IA. O app possibilita tirar foto do comprovante de pagamento pelo celular e depois envia essa imagem para a API do Claude. A IA extrai automaticamente data, valor, destinatário e método de pagamento, e salva no banco de dados. 
+> Leitura de notas fiscais e boletos por IA. O app possibilita tirar foto do comprovante de pagamento pelo celular e depois envia essa imagem para a API do Claude. A IA extrai automaticamente data, valor, destinatário e método de pagamento, e salva no banco de dados. 
 
 
 ![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)
@@ -16,9 +16,9 @@
 
 ### Captura e extração
 - Botão "Tirar foto" aciona câmera nativa do celular (`capture="environment"`)
-- No desktop, abre seletor de arquivos — arraste screenshots de comprovantes
+- No desktop, abre seletor de arquivos, arraste screenshots de comprovantes
 - Preview da imagem enquanto processa
-- Claude Sonnet 4.6 extrai: valor, estabelecimento, data, método de pagamento, confiança
+- Claude extrai: valor, estabelecimento, data, método de pagamento, confiança
 
 ### Revisão e confirmação
 - Todos os campos extraídos são editáveis antes de salvar
@@ -41,20 +41,3 @@
 | 4 | **Curva cumulativa: mês atual vs anterior** | Estou no mesmo ritmo que o mês passado? |
 | 5 | **Top 10 maiores gastos do mês** | Quais foram meus maiores gastos? Teve algum excepcional? |
 | 6 | **Média por dia da semana** | Em que dia da semana eu mais gasto? |
-
----
-
-## Arquitetura
-
-```
-PWA (Chrome/Safari mobile + desktop)
-        │
-        ▼
-Next.js 16 App Router (Vercel)
-├── Server Components  ──► analyticsService ──► PostgreSQL (Neon)
-├── Route Handlers     ──► Vercel Blob (imagens)
-│                      ──► Claude Sonnet 4.6 (extração)
-└── Client Components  ──► Recharts (gráficos)
-```
-
-Middleware valida `x-api-token` em todas as rotas `/api/*`.
